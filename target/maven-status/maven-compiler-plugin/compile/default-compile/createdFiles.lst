@@ -1,0 +1,16 @@
+com\iacademy\hotel_management_system\repository\RoomRepository.class
+com\iacademy\hotel_management_system\dto\RoomResponse.class
+com\iacademy\hotel_management_system\dto\RoomRequest.class
+com\iacademy\hotel_management_system\enums\RoomStatus.class
+com\iacademy\hotel_management_system\service\RoomTypeService.class
+com\iacademy\hotel_management_system\HotelManagementSystemApplication.class
+com\iacademy\hotel_management_system\dto\RoomTypeRequest.class
+com\iacademy\hotel_management_system\dto\RoomResponse$RoomResponseBuilder.class
+com\iacademy\hotel_management_system\dto\RoomTypeResponse$RoomTypeResponseBuilder.class
+com\iacademy\hotel_management_system\service\RoomService.class
+com\iacademy\hotel_management_system\entity\RoomType.class
+com\iacademy\hotel_management_system\dto\RoomTypeResponse.class
+com\iacademy\hotel_management_system\controller\RoomController.class
+com\iacademy\hotel_management_system\controller\RoomTypeController.class
+com\iacademy\hotel_management_system\entity\Room.class
+com\iacademy\hotel_management_system\repository\RoomTypeRepository.class

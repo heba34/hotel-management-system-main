@@ -4,7 +4,9 @@ import com.iacademy.hotel_management_system.dto.RoomTypeRequest;
 import com.iacademy.hotel_management_system.dto.RoomTypeResponse;
 import com.iacademy.hotel_management_system.service.RoomTypeService;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,8 @@ import java.util.List;
 public class RoomTypeController {
 
     private final RoomTypeService roomTypeService;
+    @Setter
+    @Getter
     private RoomTypeRequest request;
 
     @GetMapping
@@ -31,7 +35,7 @@ public class RoomTypeController {
     @GetMapping("/{id}")
     public ResponseEntity<RoomTypeResponse>
     getRoomTypeById(
-            @PathVariable Long id
+            @PathVariable String id // تم التعديل لـ String
     ) {
 
         return ResponseEntity.ok(
@@ -53,7 +57,7 @@ public class RoomTypeController {
     @PutMapping("/{id}")
     public ResponseEntity<RoomTypeResponse>
     updateRoomType(
-            @PathVariable Long id,
+            @PathVariable String id, // تم التعديل لـ String
             @Valid @RequestBody RoomTypeRequest request
     ) {
         this.request = request;
@@ -68,11 +72,12 @@ public class RoomTypeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoomType(
-            @PathVariable Long id
+            @PathVariable String id // تم التعديل لـ String
     ) {
 
         roomTypeService.deleteRoomType(id);
 
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -1,49 +1,45 @@
 package com.iacademy.hotel_management_system.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
+import java.math.BigDecimal; // لازم نضيف ده
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "room_type")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "room_types")
 public class RoomType {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @Column(nullable = false)
     private String name;
 
     private String description;
 
-    @Column(name = "base_price", nullable = false)
-    private BigDecimal basePrice;
+    private BigDecimal basePrice; // تم التعديل لـ BigDecimal
 
-    @Column(name = "max_adults", nullable = false)
+    private Integer capacity;
+
+    // تم إضافة المتغيرات الناقصة
     private Integer maxAdults;
 
-    @Column(name = "max_children", nullable = false)
     private Integer maxChildren;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
-    @Column(name = "updated_by")
     private Long updatedBy;
 }

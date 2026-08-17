@@ -23,7 +23,8 @@ public class RoomTypeService {
                 .toList();
     }
 
-    public RoomTypeResponse getRoomTypeById(Long id) {
+    // تم التعديل إلى String
+    public RoomTypeResponse getRoomTypeById(String id) {
 
         RoomType roomType = roomTypeRepository
                 .findById(id)
@@ -63,8 +64,9 @@ public class RoomTypeService {
         return mapToResponse(savedRoomType);
     }
 
+    // تم التعديل إلى String
     public RoomTypeResponse updateRoomType(
-            Long id,
+            String id,
             RoomTypeRequest request
     ) {
 
@@ -88,7 +90,8 @@ public class RoomTypeService {
         return mapToResponse(updatedRoomType);
     }
 
-    public void deleteRoomType(Long id) {
+    // تم التعديل إلى String
+    public void deleteRoomType(String id) {
 
         if (!roomTypeRepository.existsById(id)) {
             throw new RuntimeException(

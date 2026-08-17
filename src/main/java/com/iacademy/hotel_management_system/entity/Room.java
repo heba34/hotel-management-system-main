@@ -1,48 +1,40 @@
 package com.iacademy.hotel_management_system.entity;
 
 import com.iacademy.hotel_management_system.enums.RoomStatus;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "room")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "rooms")
 public class Room {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_type_id", nullable = false)
-    private RoomType roomType;
+    private String roomTypeId;
 
-    @Column(name = "room_number", nullable = false, unique = true)
     private String roomNumber;
 
     private String floor;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private RoomStatus status;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "created_by")
     private Long createdBy;
 
-    @Column(name = "updated_by")
     private Long updatedBy;
 }

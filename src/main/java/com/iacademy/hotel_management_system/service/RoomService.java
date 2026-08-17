@@ -10,6 +10,8 @@ import com.iacademy.hotel_management_system.repository.RoomTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -19,6 +21,10 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final RoomTypeRepository roomTypeRepository;
 
+    // =========================
+    // Get All Rooms
+    // =========================
+
     public List<RoomResponse> getAllRooms() {
 
         return roomRepository.findAll()
@@ -27,7 +33,11 @@ public class RoomService {
                 .toList();
     }
 
-    public RoomResponse getRoomById(Long id) {
+    // =========================
+    // Get Room By ID
+    // =========================
+
+    public RoomResponse getRoomById(String id) {
 
         Room room = roomRepository.findById(id)
                 .orElseThrow(() ->
@@ -38,6 +48,10 @@ public class RoomService {
 
         return mapToResponse(room);
     }
+
+    // =========================
+    // Create Room
+    // =========================
 
     public RoomResponse saveRoom(RoomRequest request) {
 
@@ -63,7 +77,9 @@ public class RoomService {
 
         room.setRoomNumber(request.getRoomNumber());
         room.setFloor(request.getFloor());
-        room.setRoomType(roomType);
+
+        // MongoDB stores the RoomType ID
+        room.setRoomTypeId(roomType.getId());
 
         if (request.getStatus() == null) {
             room.setStatus(RoomStatus.AVAILABLE);
@@ -76,8 +92,12 @@ public class RoomService {
         return mapToResponse(savedRoom);
     }
 
+    // =========================
+    // Update Room
+    // =========================
+
     public RoomResponse updateRoom(
-            Long id,
+            String id,
             RoomRequest request
     ) {
 
@@ -99,7 +119,7 @@ public class RoomService {
 
         room.setRoomNumber(request.getRoomNumber());
         room.setFloor(request.getFloor());
-        room.setRoomType(roomType);
+        room.setRoomTypeId(roomType.getId());
 
         if (request.getStatus() != null) {
             room.setStatus(request.getStatus());
@@ -110,9 +130,14 @@ public class RoomService {
         return mapToResponse(updatedRoom);
     }
 
-    public void deleteRoom(Long id) {
+    // =========================
+    // Delete Room
+    // =========================
+
+    public void deleteRoom(String id) {
 
         if (!roomRepository.existsById(id)) {
+
             throw new RuntimeException(
                     "Room not found with id: " + id
             );
@@ -120,6 +145,10 @@ public class RoomService {
 
         roomRepository.deleteById(id);
     }
+
+    // =========================
+    // Get Available Rooms
+    // =========================
 
     public List<RoomResponse> getAvailableRooms() {
 
@@ -129,6 +158,173 @@ public class RoomService {
                 .map(this::mapToResponse)
                 .toList();
     }
+
+    // =========================
+    // Search Available Rooms
+    // =========================
+
+    public List<RoomResponse> searchAvailableRooms(
+            LocalDate checkIn,
+            LocalDate checkOut,
+            String type,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Integer maxOccupancy
+    ) {
+
+        // Check dates
+        if (checkIn == null || checkOut == null) {
+
+            throw new IllegalArgumentException(
+                    "Check-in and check-out dates are required"
+            );
+        }
+
+        // Check-in must be today or future
+        if (checkIn.isBefore(LocalDate.now())) {
+
+            throw new IllegalArgumentException(
+                    "Check-in date cannot be in the past"
+            );
+        }
+
+        // Check-out must be after check-in
+        if (!checkOut.isAfter(checkIn)) {
+
+            throw new IllegalArgumentException(
+                    "Check-out date must be after check-in date"
+            );
+        }
+
+        return roomRepository
+                .findByStatus(RoomStatus.AVAILABLE)
+                .stream()
+
+                // =========================
+                // Get RoomType
+                // =========================
+
+                .filter(room ->
+                        room.getRoomTypeId() != null
+                )
+
+                // =========================
+                // Filter by Type
+                // =========================
+
+                .filter(room -> {
+
+                    if (type == null || type.isBlank()) {
+                        return true;
+                    }
+
+                    RoomType roomType =
+                            roomTypeRepository
+                                    .findById(room.getRoomTypeId())
+                                    .orElse(null);
+
+                    return roomType != null
+                            && roomType.getName()
+                            .equalsIgnoreCase(type);
+                })
+
+                // =========================
+                // Filter by Min Price
+                // =========================
+
+                .filter(room -> {
+
+                    if (minPrice == null) {
+                        return true;
+                    }
+
+                    RoomType roomType =
+                            roomTypeRepository
+                                    .findById(room.getRoomTypeId())
+                                    .orElse(null);
+
+                    return roomType != null
+                            && roomType.getBasePrice()
+                            .compareTo(minPrice) >= 0;
+                })
+
+                // =========================
+                // Filter by Max Price
+                // =========================
+
+                .filter(room -> {
+
+                    if (maxPrice == null) {
+                        return true;
+                    }
+
+                    RoomType roomType =
+                            roomTypeRepository
+                                    .findById(room.getRoomTypeId())
+                                    .orElse(null);
+
+                    return roomType != null
+                            && roomType.getBasePrice()
+                            .compareTo(maxPrice) <= 0;
+                })
+
+                // =========================
+                // Filter by Occupancy
+                // =========================
+
+                .filter(room -> {
+
+                    if (maxOccupancy == null) {
+                        return true;
+                    }
+
+                    RoomType roomType =
+                            roomTypeRepository
+                                    .findById(room.getRoomTypeId())
+                                    .orElse(null);
+
+                    if (roomType == null) {
+                        return false;
+                    }
+
+                    int totalOccupancy =
+                            roomType.getMaxAdults()
+                                    + roomType.getMaxChildren();
+
+                    return totalOccupancy <= maxOccupancy;
+                })
+
+                // =========================
+                // Sort by Price Ascending
+                // =========================
+
+                .sorted((room1, room2) -> {
+
+                    RoomType type1 =
+                            roomTypeRepository
+                                    .findById(room1.getRoomTypeId())
+                                    .orElse(null);
+
+                    RoomType type2 =
+                            roomTypeRepository
+                                    .findById(room2.getRoomTypeId())
+                                    .orElse(null);
+
+                    if (type1 == null || type2 == null) {
+                        return 0;
+                    }
+
+                    return type1.getBasePrice()
+                            .compareTo(type2.getBasePrice());
+                })
+
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    // =========================
+    // Get Rooms By Status
+    // =========================
 
     public List<RoomResponse> getRoomsByStatus(
             RoomStatus status
@@ -141,11 +337,16 @@ public class RoomService {
                 .toList();
     }
 
+    // =========================
+    // Get Rooms By Type
+    // =========================
+
     public List<RoomResponse> getRoomsByType(
-            Long roomTypeId
+            String roomTypeId
     ) {
 
         if (!roomTypeRepository.existsById(roomTypeId)) {
+
             throw new RuntimeException(
                     "RoomType not found with id: " + roomTypeId
             );
@@ -158,12 +359,29 @@ public class RoomService {
                 .toList();
     }
 
+    // =========================
+    // Map Room To Response
+    // =========================
+
     private RoomResponse mapToResponse(Room room) {
+
+        RoomType roomType =
+                roomTypeRepository
+                        .findById(room.getRoomTypeId())
+                        .orElse(null);
 
         return RoomResponse.builder()
                 .id(room.getId())
-                .roomTypeId(room.getRoomType().getId())
-                .roomTypeName(room.getRoomType().getName())
+                .roomTypeId(
+                        roomType != null
+                                ? roomType.getId()
+                                : null
+                )
+                .roomTypeName(
+                        roomType != null
+                                ? roomType.getName()
+                                : null
+                )
                 .roomNumber(room.getRoomNumber())
                 .floor(room.getFloor())
                 .status(room.getStatus())

@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @Builder
 public class RoomResponse {
 
-    private Long id;
+    private String id; // تم التعديل إلى String
 
-    private Long roomTypeId;
+    private String roomTypeId; // تم التعديل إلى String
 
     private String roomTypeName;
 

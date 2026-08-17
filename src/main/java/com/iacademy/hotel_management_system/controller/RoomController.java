@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -21,6 +23,50 @@ public class RoomController {
 
     private final RoomService roomService;
 
+
+    // =========================
+    // 3.1 + 3.2
+    // Search Available Rooms by Date
+    // + Filter by Type / Price / Occupancy
+    // =========================
+
+    @GetMapping("/search")
+    public ResponseEntity<List<RoomResponse>> searchAvailableRooms(
+
+            @RequestParam LocalDate checkIn,
+
+            @RequestParam LocalDate checkOut,
+
+            @RequestParam(required = false)
+            String type,
+
+            @RequestParam(required = false)
+            BigDecimal minPrice,
+
+            @RequestParam(required = false)
+            BigDecimal maxPrice,
+
+            @RequestParam(required = false)
+            Integer maxOccupancy
+    ) {
+
+        return ResponseEntity.ok(
+                roomService.searchAvailableRooms(
+                        checkIn,
+                        checkOut,
+                        type,
+                        minPrice,
+                        maxPrice,
+                        maxOccupancy
+                )
+        );
+    }
+
+
+    // =========================
+    // 2.4 List & View Rooms
+    // =========================
+
     @GetMapping
     public ResponseEntity<List<RoomResponse>> getAllRooms() {
 
@@ -29,9 +75,10 @@ public class RoomController {
         );
     }
 
+
     @GetMapping("/{id}")
     public ResponseEntity<RoomResponse> getRoomById(
-            @PathVariable Long id
+            @PathVariable String id // تم التعديل إلى String
     ) {
 
         return ResponseEntity.ok(
@@ -39,9 +86,14 @@ public class RoomController {
         );
     }
 
+
+    // =========================
+    // 2.1 Create Room
+    // =========================
+
     @PostMapping
     public ResponseEntity<RoomResponse> createRoom(
-            @RequestBody RoomRequest request
+            @Valid @RequestBody RoomRequest request
     ) {
 
         return ResponseEntity
@@ -49,9 +101,14 @@ public class RoomController {
                 .body(roomService.saveRoom(request));
     }
 
+
+    // =========================
+    // 2.2 Update Room
+    // =========================
+
     @PutMapping("/{id}")
     public ResponseEntity<RoomResponse> updateRoom(
-            @PathVariable Long id,
+            @PathVariable String id, // تم التعديل إلى String
             @Valid @RequestBody RoomRequest request
     ) {
 
@@ -60,9 +117,14 @@ public class RoomController {
         );
     }
 
+
+    // =========================
+    // 2.3 Delete Room
+    // =========================
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRoom(
-            @PathVariable Long id
+            @PathVariable String id // تم التعديل إلى String
     ) {
 
         roomService.deleteRoom(id);
@@ -70,18 +132,26 @@ public class RoomController {
         return ResponseEntity.noContent().build();
     }
 
+
+    // =========================
+    // Get Available Rooms
+    // =========================
+
     @GetMapping("/available")
-    public ResponseEntity<List<RoomResponse>>
-    getAvailableRooms() {
+    public ResponseEntity<List<RoomResponse>> getAvailableRooms() {
 
         return ResponseEntity.ok(
                 roomService.getAvailableRooms()
         );
     }
 
+
+    // =========================
+    // Filter by Status
+    // =========================
+
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<RoomResponse>>
-    getRoomsByStatus(
+    public ResponseEntity<List<RoomResponse>> getRoomsByStatus(
             @PathVariable RoomStatus status
     ) {
 
@@ -90,10 +160,14 @@ public class RoomController {
         );
     }
 
+
+    // =========================
+    // Filter by Room Type
+    // =========================
+
     @GetMapping("/type/{roomTypeId}")
-    public ResponseEntity<List<RoomResponse>>
-    getRoomsByType(
-            @PathVariable Long roomTypeId
+    public ResponseEntity<List<RoomResponse>> getRoomsByType(
+            @PathVariable String roomTypeId // تم التعديل إلى String
     ) {
 
         return ResponseEntity.ok(

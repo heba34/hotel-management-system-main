@@ -2,7 +2,6 @@ package com.iacademy.hotel_management_system.dto;
 
 import com.iacademy.hotel_management_system.enums.RoomStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -16,6 +15,6 @@ public class RoomRequest {
 
     private RoomStatus status;
 
-    @NotNull(message = "Room type id is required")
-    private Long roomTypeId;
+    @NotBlank(message = "Room type id is required")
+    private String roomTypeId; // تم التعديل إلى String واستخدام NotBlank
 }
